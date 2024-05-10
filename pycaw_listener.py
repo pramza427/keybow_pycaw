@@ -12,7 +12,7 @@ apps = [
     ["Spotify.exe",
     "chrome.exe"],
     #com apps
-    ["Discard.exe"]
+    ["Discord.exe"]
 ]
 
 # Joins all apps into a 1D array. Used to adjust volume of all apps that are not in any app list
