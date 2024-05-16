@@ -1,5 +1,6 @@
 import keyboard
 from pycaw.pycaw import AudioUtilities, ISimpleAudioVolume
+from win10toast import ToastNotifier
 
 MAX_VOLUME = 1.0
 MIN_VOLUME = 0.0
@@ -109,5 +110,10 @@ keyboard.on_press_key("F22", lambda e: set_volume_all())
 
 # On startup set all volume levels to current_vol values
 set_volume_all()
+
+# Notify the user that the script is running in the background
+toast = ToastNotifier()
+toast.show_toast("Audio Adjuster", "Listening for F13-F24 keys", duration=10)
+
 # keep the program running so it is always checking for keyboard inputs
 keyboard.wait("")

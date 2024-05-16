@@ -1,0 +1,1 @@
+CreateObject("Wscript.Shell").Run "path_to\run_pycaw_listener.bat", 0, False
