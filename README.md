@@ -1,4 +1,4 @@
-# Purpose
+# keybow_pycaw
 
 This project allows users to quickly adjust the Windows volume of applications at the click of a button. The script utilizes pycaw to adjust the volume of grouped applications based on which function key was pressed. Currently the script listens for function keys 13-24 since they are rarely used in other applications.
 
@@ -15,8 +15,8 @@ You can run this helper function while applications are running to see what the 
 
 ### keybow_code.py
 
-This file is the code that will run on the Keybow. There are multiple layers of functionality, with the first layer adjusting Windows audio (when paired with pycaw_listener). The second layer is a normal keypad, and the third simulates button presses to write strings. <br>
-Using a Keybow is not necessary, but you would either need to find another way to input F13-F24 or edit `pycaw_listener.py` to listen for different keys. <br>
+This file is the code that will run on the Keybow. There are 2 layers of functionality, with the first layer adjusting Windows audio (when paired with pycaw_listener). The second layer is a normal keypad. <br>
+Using a Keybow is not necessary, but you would either need to find another way to input F13-F24 (VIA) or edit `pycaw_listener.py` to listen for different keys. <br>
 If you would also like to use a Keybow 2040:
 * [Setup the Keybow](https://learn.pimoroni.com/article/assembling-keybow-2040)
 * Replace `code.py` in **CIRCUITPY** drive with `keybow_code.py`.
@@ -24,12 +24,10 @@ If you would also like to use a Keybow 2040:
 
 The exact layout of the Keybow layers:
 ```
-|         Layer 1        |         Layer 2      |        Layer 3       |
-
-|       (L1) (L2) (L3)   |      (L1)(L2)(L3)    |      (L1)(L2)(L3)    |
-| Layer  -    =    \     |    L   -   =   \     |    L   -   =   \     |
+|         Layer 1        |         Layer 2      |
+| Layer  -    =    \     |    L   -   =   \     |
 |  F15  F18  F21  F24    |    7   8   9   *     |    
-|  F14  F17  F20  F23    |    4   5   6   -     |
+|  F14  F17  F20  F23    |    4   5   6   .     |
 |  F13  F16  F19  F22    |    1   2   3   0     |
 ```
 
@@ -44,10 +42,9 @@ Be sure that the following dependencies are installed:
 Run `pycaw_listener.py` <br>
 Function keys 13-24 should now adjust the volume of applications. By default the bindings are:
 * F13-F15: Media volume (Chrome, Spotify)
-* F16-F18: Communication volume (Discord)
+* F16-F18: Communication volume (Discord, Teams)
 * F19-F21: All other application
 * F22: Equalize volume (used if a new application is opened and is desynchronized from the others in its group)
-* F23-F24: Master volume
 
 # Running on Startup
 
