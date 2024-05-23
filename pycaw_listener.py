@@ -13,7 +13,8 @@ apps = [
     ["Spotify.exe",
     "chrome.exe"],
     #com apps
-    ["Discord.exe"]
+    ["Discord.exe",
+     "Teams.exe"]
 ]
 
 # Joins all apps into a 1D array. Used to adjust volume of all apps that are not in any app list
@@ -23,7 +24,6 @@ all_apps = [j for arr in apps for j in arr]
 # These values will be set every time the script is started
 # indeces correspond to the apps indeces
 current_vol = [0.5, 1.0, 0.4]
-
 
 def mute_apps(idx):
     sessions = AudioUtilities.GetAllSessions()

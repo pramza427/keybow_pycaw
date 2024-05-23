@@ -1,15 +1,13 @@
-# There are three layers, selected by pressing and holding key 3 (top left), 
-# then tapping one of the colored layer selector keys to the right of it
+# There are two layers, switch by pressing key 3 (top left), 
 
 # The layer colors are as follows:
 
 #  * layer 1: used for pycaw media controls and - = \ that I use for discord mute defen and overlay respectively
-#       * pink: F13 - F15  Audio controls 1
+#       * green: F13 - F15  Audio controls 1
 #       * blue: F18 - F18  Audio controls 2
 #       * purple: F19 - F21  Audio controls 3
 #       * yellow: F22 - F24  Audio controls 4
-#  * layer 2: blue: 0 - 9 keypad inputs and keypad - and x : used for quickbuys in games
-#  * layer 3: yellow: sends strings on each key press
+#  * layer 2: pink: 0 - 9 keypad inputs and keypad - and x
 
 import board
 import time
@@ -17,11 +15,7 @@ from keybow2040 import Keybow2040
 
 import usb_hid
 from lib.adafruit_hid.keyboard import Keyboard
-from lib.adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 from lib.adafruit_hid.keycode import Keycode
-
-from lib.adafruit_hid.consumer_control import ConsumerControl
-from lib.adafruit_hid.consumer_control_code import ConsumerControlCode
 
 # Set up Keybow
 i2c = board.I2C()
@@ -30,14 +24,9 @@ keys = keybow.keys
 
 # Set up the keyboard and layout
 keyboard = Keyboard(usb_hid.devices)
-layout = KeyboardLayoutUS(keyboard)
-
-# Set up consumer control (used to send media key presses)
-consumer_control = ConsumerControl(usb_hid.devices)
 
 # keycodes to be picked up by pycaw_listener.py for audio adjustments
 # all buttons on this layer are prefixed by alt
-#       (L1) (L2) (L3)
 # Layer  -    =    \
 #  F15  F18  F21  F24
 #  F14  F17  F20  F23
@@ -62,8 +51,7 @@ layer_1 =     {0: Keycode.F13,
                }
 
 # Layer with keypad 0-9, -, x 
-# Mainly used for quick buying in csgo
-#   (L1)(L2)(L3)
+# 
 # L   -   =   \
 # 7   8   9   X
 # 4   5   6   -
@@ -85,66 +73,57 @@ layer_2 =     {0: Keycode.KEYPAD_ONE,
                15: Keycode.BACKSLASH
                }
 
-
-layer_3 =     {0: "pack ",
-               4: "my ",
-               8: "box ",
-               6: "with ",
-               10: "five ",
-               14: "dozen ",
-               5: "liquor ",
-               9: "jugs "}
-
 # Define what keys handle each layer
-layers =      {7: layer_1,
-               11: layer_2,
-               15: layer_3}
+layers =      {1: layer_1,
+               2: layer_2}
 
-# Define the modifier key and layer selector keys
-modifier = keys[3]
-
-selectors =   {7: keys[7],
-               11: keys[11],
-               15: keys[15]}
+# Define the layer switch key
+next_layer = keys[3]
 
 # Start on layer 1
-current_layer = 7
+current_layer = 1
 
-audio_dial_colors = [(255, 89, 94),
-                     (25, 130, 255),
-                     (106, 76, 255),
-                     (138, 255, 38)]
+# Define Colors
+audio_dial_colors = [(50, 255, 0), #green
+                     (0, 130, 255), # blue
+                     (130, 0, 255), # purple
+                     (138, 255, 38)] # yellow
 
-layer_7_colors = {0: audio_dial_colors[0],
+next_layer_color = (255, 255, 255)
+
+keybind1_color = (255, 255, 0) # yellow
+keybind2_color = (255, 120, 0) # orange
+keybind3_color = (255, 0, 0) # red
+
+
+layer_1_colors = {0: audio_dial_colors[0],
                   1: audio_dial_colors[0],
                   2: audio_dial_colors[0],
-                  3: audio_dial_colors[0],
+                  3: next_layer_color,
                   4: audio_dial_colors[1],
                   5: audio_dial_colors[1],
                   6: audio_dial_colors[1],
-                  7: audio_dial_colors[1],
+                  7: keybind1_color,
                   8: audio_dial_colors[2],
                   9: audio_dial_colors[2],
                   10: audio_dial_colors[2],
-                  11: audio_dial_colors[2],
+                  11: keybind2_color,
                   12: audio_dial_colors[3],
                   13: audio_dial_colors[3],
                   14: audio_dial_colors[3],
-                  15: audio_dial_colors[3]}
+                  15: keybind3_color}
 
-# The colors for each layer
-colors = {7: (255, 0, 255),
-          11: (0, 255, 255),
-          15: (255, 255, 0)}
+layer_2_color = (255, 0, 255) # pink
 
 layer_keys = [0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14]
 
 # Set the LEDs for each key in the current layer
+keys[3].set_led(*next_layer_color)
 for k in layers[current_layer].keys():
-    if current_layer == 7:
-        keys[k].set_led(*layer_7_colors[k])
+    if current_layer == 1:
+        keys[k].set_led(*layer_1_colors[k])
     else:
-        keys[k].set_led(*colors[current_layer])
+        keys[k].set_led(*layer_2_color)
 
 # To prevent the strings (as opposed to single key presses) that are sent from 
 # refiring on a single key press, the debounce time for the strings has to be 
@@ -158,37 +137,21 @@ while True:
     # Always remember to call keybow.update()!
     keybow.update()
 
-    # This handles the modifier and layer selector behaviour
-    if modifier.held:
-        # Give some visual feedback for the modifier key
-        modifier.led_off()
+    # This handles the layer toggle behaviour
+    if next_layer.pressed:
+        current_layer = current_layer % 2 + 1
+        
+        # Set the key LEDs first to off, then to their layer colour
+        for k in layer_keys:
+            keys[k].set_led(0, 0, 0)
+            #next_layer.set_led(next_layer_color)
 
-        # If the modifier key is held, light up the layer selector keys
-        for layer in layers.keys():
-            keys[layer].set_led(*colors[layer])
+        for k in layers[current_layer].keys():
+            if current_layer == 1:
+                keys[k].set_led(*layer_1_colors[k])
+            else:
+                keys[k].set_led(*layer_2_color)
 
-            # Change layer if layer key is pressed
-            if current_layer != layer:
-                if selectors[layer].pressed:
-                    current_layer = layer
-
-                    # Set the key LEDs first to off, then to their layer colour
-                    for k in layer_keys:
-                        keys[k].set_led(0, 0, 0)
-
-                    for k in layers[layer].keys():
-                        if current_layer == 7:
-                            keys[k].set_led(*layer_7_colors[k])
-                        else:
-                            keys[k].set_led(*colors[layer])
-
-    # Turn off the layer selector LEDs if the modifier isn't held
-    else:
-        for layer in layers.keys():
-            keys[layer].led_off()
-
-        # Give some visual feedback for the modifier key
-        modifier.set_led(0, 255, 25)
 
     # Loop through all of the keys in the layer and if they're pressed, get the
     # key code from the layer's key map
@@ -203,19 +166,15 @@ while True:
                 # Send the right sort of key press and set debounce for each
                 # layer accordingly (layer 2 needs a long debounce)
                 # Volume Controls
-                if current_layer == 7:
+                if current_layer == 1:
                     debounce = long_debounce
                     keyboard.send(Keycode.RIGHT_ALT, key_press)
                     
                 # Keypad
-                elif current_layer == 11:
+                elif current_layer == 2:
                     debounce = long_debounce
                     keyboard.send(key_press)
                     
-                # Strings
-                elif current_layer == 15:
-                    debounce = short_debounce
-                    layout.write(key_press)
 
     # If enough time has passed, reset the fired variable
     if fired and time.monotonic() - keybow.time_of_last_press > debounce:
