@@ -11,7 +11,8 @@ volume_step = 0.1
 apps = [
     #media apps
     ["Spotify.exe",
-    "chrome.exe"],
+    "chrome.exe",
+    "firefox.exe"],
     #com apps
     ["Discord.exe",
      "Teams.exe"]
